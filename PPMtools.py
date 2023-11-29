@@ -303,7 +303,8 @@ def update_patterns(wntr_obj, patterns, outfile):
         else:
             wntr_obj.add_pattern(patt, patterns[patt])
     
-    wntr_obj.write_inpfile(outfile, units='GPM')
+    wntr.network.io.write_inpfile(wntr_obj, outfile, units='GPM')
+    # wntr_obj.write_inpfile(outfile, units='GPM')
     
 
 # =============================================================================
@@ -669,7 +670,7 @@ def DeleteContents(folder):
 # =============================================================================
 def MSXBinReader(filename, epanetinpfile):
     wn = wntr.network.WaterNetworkModel(epanetinpfile)
-    duration = wn.options.duration
+    duration = int(wn.options.time.duration)
     with open(filename, 'rb') as fin:
           ftype = '=f4'
           idlen = 32

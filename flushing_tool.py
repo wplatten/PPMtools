@@ -17,7 +17,7 @@ import networkx as nx
 import os
 import copy
 import matplotlib.pyplot as plt
-import time
+import datetime
 
 
 class Flush_Procedure:
@@ -966,7 +966,7 @@ def summarize_results(wn, proc, results):
     d_sum['water network'] = wn
     d_sum['flush procedure'] = proc
     d_sum['pressure'] = proc.supply_pressure
-    d_sum['tank size'] = int(tank_vol / m3_per_gal)
+    d_sum['tank size'] = int(tank_vol)
     d_sum['nodes>10%'] = len(df_q_node.loc[(df_q_node['qual_remaining'] > 10) & (df_q_node['demand provided'] > 0)])
     d_sum['nodes>1%'] = len(df_q_node.loc[(df_q_node['qual_remaining'] > 1) & (df_q_node['demand provided'] > 0)])
 
@@ -1208,12 +1208,12 @@ def create_procedures(wn, iii, model):
     Lead.toilet_flush_count = 1
     Lead.tank_method = 'drain'
     
-    # procedures.append(best)
+    procedures.append(best)
     # procedures.append(best_2H)
     # procedures.append(best_3H)
     # procedures.append(best_drain)
     # procedures.append(best_Pb_Exp)
-    # procedures.append(WVAM)
+    procedures.append(WVAM)
     # procedures.append(WVAM_W)
     # procedures.append(OpFlow)
     # procedures.append(OpFlow_W)
@@ -1226,8 +1226,8 @@ def create_procedures(wn, iii, model):
     # procedures.append(MDEQ)
     # procedures.append(MDEQ_W)
     # procedures.append(One)
-    # procedures.append(Cle_Water)
-    procedures.append(Lead)
+    procedures.append(Cle_Water)
+    # procedures.append(Lead)
 
     return procedures
 
@@ -1240,11 +1240,12 @@ tss = 10 # seconds per pattern time step
 tss_per_min = int(60/tss) # conversion from minutes to pattern timesteps
 curdir = os.getcwd()
 inpfile_dir = curdir +'/INP_Files'
-results_dir = curdir + '/Simulation_Results/'
+results_dir = os.path.dirname(curdir) + '/Simulation_Results/' + datetime.date.today().isoformat()
 inpfile_flush_dir = results_dir + '/Flushed_Temp'
+os.makedirs(inpfile_flush_dir, exist_ok=True)
 sim_engine = 'EPANET22' # select the simulation engine, either 'WNTR' or 'EPANET22'
 
-ID = ['House1'] # [1:'JBB', 2:'MDS', 3:'HPS', 4:'WEP1']
+ID = ['House3'] # [1:'JBB', 2:'MDS', 3:'HPS', 4:'WEP1']
 d_results = {}
 for iii in ID:
     if iii == 'House1':
@@ -1315,7 +1316,7 @@ for iii in ID:
         d_results[iii][tank_size] = {}
         wn = set_tank_volume(wn, tank_size) # set tank volume
 
-        flush_type = 'single fixture' # single fixture or procedure
+        flush_type = 'procedure' # single fixture or procedure
         if flush_type == 'single fixture':
             flush_procedures = [Flush_Procedure('Single', wn, house.Household(str(iii) + '-Flushed-Single', model))]
         else:
